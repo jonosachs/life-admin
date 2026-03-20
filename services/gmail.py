@@ -4,8 +4,10 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.errors import HttpError
 from config import load_secrets
+import base64
+from bs4 import BeautifulSoup
 
-class Gmail():
+class Gmail:
   def __init__(self):
     self.secrets = load_secrets()
     self.creds = self.get_credentials()
@@ -29,6 +31,7 @@ class Gmail():
   def get_mail(self):
     mailboxes = self.secrets['MAILBOXES'].split(",")
     query = ' OR '.join([f"in:{m}" for m in mailboxes])
+    messages = []
     
     try:
       # Call the Gmail API
@@ -38,26 +41,58 @@ class Gmail():
         service.users().messages().list(
           userId="me", 
           q=query,
-          maxResults=5, 
+          maxResults=2, 
         ).execute()
       )
-      messages = results.get("messages", [])
+      msgs_by_id = results.get("messages", [])
 
-      if not messages:
+      if not msgs_by_id:
         print("No messages found.")
-        return
-
-      print("Messages:")
-      for message in messages:
-        print(f'Message ID: {message["id"]}')
-        msg = (
+        return []
+      
+      for msg in msgs_by_id:
+        msg_data = (
           service.users().messages().get(
             userId="me", 
-            id=message["id"]
+            id=msg["id"],
+            format="full"
           ).execute()
         )
-        print(f'  Subject: {msg["snippet"]}')
-
+        
+        payload = msg_data.get("payload", {})
+        body_raw = payload.get("body", {}).get("data")
+        
+        if body_raw:
+          body_html = base64.urlsafe_b64decode(body_raw + "==").decode("utf-8")
+          body = BeautifulSoup(body_html, "html.parser").get_text()
+        else:
+          body = []
+          parts = payload.get("parts", [])
+          for idx, p in enumerate(parts):
+            body_raw = p["body"]["data"]
+            body_decoded = base64.urlsafe_b64decode(body_raw + "==").decode("utf-8")
+            body_text = BeautifulSoup(body_decoded, "html.parser").get_text()
+            body_text_stripped = body_text.replace("\r", "").replace("\t", "").replace("\n", "")
+            body.append({f"part{idx}": body_text_stripped})
+        
+        headers = {item["name"]: item["value"] for item in payload.get("headers", {})}
+        
+        msg_entry = {
+            "id": msg["id"],
+            "headers": {
+              "date": headers.get("Date"),
+              "to": headers.get("To"),
+              "from": headers.get("From"),
+              "subject": headers.get("Subject")
+            },
+            "body": body
+          }
+        
+        print(msg_entry)
+        messages.append(msg_entry)
+        
+      return messages
+    
     except HttpError as error:
         # TODO(developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
