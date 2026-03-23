@@ -6,10 +6,10 @@ Filter emails daily for action items and create calendar events for each, with o
 
 ```text
 - [ ] AWS EventBridge          → triggers RunPipeline every hour
-- [ ] AWS Lambda: RunPipeline  → fetches emails, extracts events, requests approval
-- [ ] AWS Lambda: SlackHandler → handles approve/deny button clicks
+- [x] AWS Lambda: RunPipeline  → fetches emails, extracts events, requests approval
+- [x] AWS Lambda: SlackHandler → handles approve/deny button clicks
 - [ ] AWS API Gateway          → public URL for SlackHandler
-- [ ] AWS Secrets Manager      → stores all credentials
+- [x] AWS Secrets Manager      → stores all credentials
 ```
 
 ## Services
