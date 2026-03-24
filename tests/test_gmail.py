@@ -17,7 +17,7 @@ msg_format = {
 }
 '''
 
-# To run single test use: python -m pytest tests/test_gmail.py -s
+# Run single test: python -m pytest tests/test_gmail.py -s
 # Use -s flag to show logs
 
 def test_get_mail():

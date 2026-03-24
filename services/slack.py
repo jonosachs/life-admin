@@ -14,7 +14,7 @@ def send_msg(msg):
     response = requests.post(webhook_url, json=msg)
     return response
   except requests.exceptions.RequestException as e:
-    print(f"An error occured while trying to send a Slack msg: {e}")
+    logger.error(f"An error occured while trying to send a Slack msg: {e}")
     raise
 
 def build_msg(event: Event) -> dict:
@@ -59,7 +59,7 @@ def send_confirmation(response_url: str, event: Event, approved: bool):
     logger.info(f"{response.status_code}, {response.text}, User response recieved")
   except requests.exceptions.RequestException as e:
     logger.error(f"An error occured while trying to send decision acknowledgement msg to Slack: {e}")
-      
+    raise
     
   
     

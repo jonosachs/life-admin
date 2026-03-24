@@ -10,4 +10,11 @@
     "google-genai",
     "beautifulsoup4",
     "boto3",
+    "requests",
+    "pydantic",
   ]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]

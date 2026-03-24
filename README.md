@@ -80,6 +80,13 @@ Stored secrets:
 pip install -e .
 ```
 
+### Testing
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
+
 ### Deploy
 
 ```bash

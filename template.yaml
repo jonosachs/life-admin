@@ -32,7 +32,7 @@ Resources:
         - Statement:
             Effect: Allow
             Action: secretsmanager:GetSecretValue
-            Resource: arn:aws:secretsmanager:ap-southeast-2:713881815725:secret:life-admin/secrets-9MlbNy
+            Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:life-admin/secrets-9MlbNy"
       Events:
         SlackEvent: # creates the API Gateway
           Type: Api
@@ -51,7 +51,7 @@ Resources:
         - Statement:
             Effect: Allow
             Action: secretsmanager:GetSecretValue
-            Resource: arn:aws:secretsmanager:ap-southeast-2:713881815725:secret:life-admin/secrets-9MlbNy
+            Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:life-admin/secrets-9MlbNy"
       Events:
         ScheduledRun: # creates the EventBridge rule
           Type: Schedule
@@ -61,4 +61,4 @@ Resources:
 Outputs:
   SlackHandlerUrl:
     Description: API Gateway URL for Slack interactions
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.ap-southeast-2.amazonaws.com/Prod/slack"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/slack"

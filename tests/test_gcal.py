@@ -3,6 +3,8 @@ from services.gcal import Calendar
 from models.event import Event
 import datetime
 
+# Run single test: python -m pytest tests/test_gcal.py -s
+
 def test_create_event():
   # recurrence field is omitted for single events
   test_event = Event(

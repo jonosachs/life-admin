@@ -21,9 +21,7 @@ class Calendar:
     try:
       # Event resource
       # https://developers.google.com/workspace/calendar/api/v3/reference/events#resource
-      start_dt = datetime.fromisoformat(e.start)
-      end_dt = datetime.fromisoformat(e.end)
-      
+
       event = {
         'summary': e.title,
         'location': e.location,
