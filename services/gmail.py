@@ -1,11 +1,11 @@
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from services.credentials import get_credentials
 from config import load_secrets
+from bs4 import BeautifulSoup
 import base64
 import logging
-from bs4 import BeautifulSoup
-from services.credentials import get_credentials
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +15,19 @@ class Gmail:
     self.creds = get_credentials()
     self.service = build("gmail", "v1", credentials=self.creds)
     
-  def get_mail(self, max_results: int = 10):
+  def get_mail(self, filter: str = None, max_results: int = 10):
+    """Filters: https://support.google.com/mail/answer/7190"""
+
     mailboxes = self.secrets['MAILBOXES'].split(",")
     query = ' OR '.join([f"in:{m}" for m in mailboxes])
+    if filter: query += f" {filter}"
     messages = []
     
     try:
-      # Call the Gmail API
       logger.info("Calling Gmail API..")
       results = (
+        # Query params for list: 
+        # https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list
         self.service.users().messages().list(
           userId="me", 
           q=query,
@@ -33,7 +37,7 @@ class Gmail:
       msgs_by_id = results.get("messages", [])
 
       if not msgs_by_id:
-        logger.info("No messages found.")
+        logger.info(f"No messages found matching query: {query}.")
         return []
       
       for msg in msgs_by_id:

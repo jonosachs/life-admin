@@ -27,6 +27,3 @@ def test_get_mail():
   logger.info(mail)
   assert len(mail["headers"]["subject"]) > 0
   assert mail["body"] != None
-
-  
-  

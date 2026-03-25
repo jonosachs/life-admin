@@ -23,7 +23,7 @@ class Calendar:
       # https://developers.google.com/workspace/calendar/api/v3/reference/events#resource
 
       event = {
-        'summary': e.title,
+        'summary': f"[bot] {e.title}",
         'location': e.location,
         'description': e.description,
         'start': {
@@ -46,8 +46,7 @@ class Calendar:
           # ],
         },
         "source": {
-          "url": e.source_url,
-          # "title": 
+          "url": e.source_url
         },
       }
 
@@ -95,6 +94,33 @@ class Calendar:
     except HttpError as error:
       logger.error(f"An error occurred: {error}")
       
+  # Parameters:
+  # https://developers.google.com/workspace/calendar/api/v3/reference/events/list
+  def get_all(self, query: str, max_results: int = 10):
+    try:
+      # Call the Calendar API
+      logger.info("Getting all events..")
+      events = (
+          self.service.events()
+          .list(
+              calendarId="primary",
+              q=query,
+              max_results=max_results
+          )
+          .execute()
+      )
+      
+      if not events:
+        logger.info(f"No events found matching query: {query}.")
+        return
+
+      logger.info(f"Retrieved {len(events)} events matching query: {query}.")
+      logger.info(f"Example event: {events[0]}")
+      return events
+    
+    except HttpError as error:
+      logger.error(f"An error occurred: {error}")
+    
   
   def delete_event(self, event_id):
     try:

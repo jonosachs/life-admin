@@ -12,6 +12,7 @@
     "boto3",
     "requests",
     "pydantic",
+    "pytz",
   ]
 
 [project.optional-dependencies]

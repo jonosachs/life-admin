@@ -96,4 +96,4 @@ sam build
 sam deploy
 ```
 
-\*README generated using Claude CLI
+\*README generated using Claude Code

@@ -8,3 +8,4 @@ services/tempCodeRunnerFile.py
 .aws-sam/
 sandbox.py
 scratch.py
+dynamo.py

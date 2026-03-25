@@ -3,8 +3,11 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 import json
+import logging
 
 load_dotenv(override=True)
+
+logger = logging.getLogger(__name__)
 
 KEYS = [
   'GOOGLE_CLIENT_ID',
@@ -35,24 +38,24 @@ def load_secrets():
       _secrets = get_secrets_fromAWS()
     else:
       _secrets = get_secrets_locally() 
+  
+  for key, value in _secrets.items():
+    if not value:
+      logger.error(f"{key}: {'MISSING'}")
+  
   return _secrets
   
 def get_secrets_locally():
   secrets = {}
   for key in KEYS:
-    secrets[key] = os.getenv(key)
-  
-  for key, value in secrets.items():
-    if not value:
-      print(f"{key}: {'MISSING'}")
-  
+    secrets[key] = os.getenv(key)  
   return secrets 
 
 def get_secrets_fromAWS():
   '''Get secrets from AWS Secret Manager'''
   
-  secret_name = "life-admin/secrets"
-  region_name = "ap-southeast-2"
+  secret_name = os.getenv('AWS_SECRETS_MAN')
+  region_name = os.getenv('AWS_REGION')
 
   # Create a Secrets Manager client
   session = boto3.session.Session()
@@ -75,9 +78,5 @@ def get_secrets_fromAWS():
   secrets_local = {}
   for key in KEYS:  
     secrets_local[key] = secrets_AWS[key]
-  
-  for key, value in secrets_local.items():
-    if not value:
-      print(f"{key}: {'MISSING'}")
       
   return secrets_local
