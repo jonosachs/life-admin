@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError
 import json
 import logging
 
@@ -71,15 +71,21 @@ def get_secrets_fromAWS():
       get_secret_value_response = client.get_secret_value(
           SecretId=secret_name
       )
-  except ClientError as e:
-      # For a list of exceptions thrown, see
-      # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-      raise e
-
-  secrets_AWS = json.loads(get_secret_value_response['SecretString'])
-  
-  secrets_local = {}
-  for key in KEYS:  
-    secrets_local[key] = secrets_AWS[key]
       
-  return secrets_local
+      secrets_AWS = json.loads(get_secret_value_response['SecretString'])
+  
+      secrets_local = {}
+      for key in KEYS:  
+        secrets_local[key] = secrets_AWS[key]
+          
+      return secrets_local
+  
+  # For a list of exceptions thrown, see
+  # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html#API_GetSecretValue_Errors
+  except NoCredentialsError:
+    logger.error("AWS credentials not found")
+    raise  
+  except ClientError as e:
+      logger.error(f"Error occured while trying to get secrets from AWS: {e}")
+      raise
+  
