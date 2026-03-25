@@ -14,14 +14,14 @@ class Gemini:
     self.secrets = load_secrets()
     self.client = genai.Client(api_key=self.secrets['GEMINI_API_KEY'])
 
-  def extract_events(self, existing_events, emails) -> List[Event]:
+  def extract_events(self, exist_events, emails) -> List[Event]:
     logger.info("Contacting Gemini API..")
 
     try:
       logger.info("Attempting to extract events..")
       response = self.client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=f"{prompt}\nExisting Events:\n{existing_events}\nEmails:\n{emails}",
+        contents=f"{prompt}\nExisting Events:\n{exist_events}\nEmails:\n{emails}",
         config={
             "response_mime_type": "application/json",
             "response_json_schema": Events.model_json_schema()

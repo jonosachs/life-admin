@@ -30,10 +30,10 @@ def lambda_handler(_event, _context):
       return
     
     # Get existing events to avoid re-creating
-    existing_events = cal.get_all(query="[bot]")
+    exist_events = cal.get_exist_events(query="[bot]")
     
     # Extract events from emails using Gemini api
-    proposed_events = gemini.extract_events(existing_events=existing_events, emails=emails)
+    proposed_events = gemini.extract_events(exist_events=exist_events, emails=emails)
     
     if not proposed_events:
       logger.info("No new events, ending pipeline")

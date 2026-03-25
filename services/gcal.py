@@ -96,19 +96,21 @@ class Calendar:
       
   # Parameters:
   # https://developers.google.com/workspace/calendar/api/v3/reference/events/list
-  def get_all(self, query: str, max_results: int = 10):
+  def get_exist_events(self, query: str, max_results: int = 10):
     try:
       # Call the Calendar API
-      logger.info("Getting all events..")
-      events = (
+      logger.info("Getting events..")
+      payload = (
           self.service.events()
           .list(
               calendarId="primary",
               q=query,
-              max_results=max_results
+              maxResults=max_results
           )
           .execute()
       )
+      
+      events = payload.get('items', [])
       
       if not events:
         logger.info(f"No events found matching query: {query}.")
