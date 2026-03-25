@@ -5,7 +5,7 @@ Scans emails daily for action items, extracts calendar events using Gemini AI, a
 ## How it works
 
 1. **AWS EventBridge** triggers the `RunPipeline` Lambda daily at 9am UTC (8pm AEDT)
-2. **AWS Lambda: RunPipeline** fetches emails from configured Gmail labels, uses Gemini to extract calendar events, and sends an approval message to Slack for each event
+2. **AWS Lambda: RunPipeline** fetches recent emails from configured Gmail labels, queries existing bot-created calendar events, uses Gemini to extract new events (skipping duplicates), and sends an approval message to Slack for each
 3. **Slack** presents approve/deny buttons — clicking approve triggers the `SlackHandler` Lambda via AWS API Gateway
 4. **AWS Lambda: SlackHandler** validates the request, creates the Google Calendar event, and updates the Slack message
 
@@ -14,8 +14,9 @@ Scans emails daily for action items, extracts calendar events using Gemini AI, a
 ```
 AWS EventBridge (daily cron, UTC)
     → AWS Lambda: RunPipeline
-        → Gmail API (fetch emails)
-        → Gemini API (extract events)
+        → Gmail API (fetch recent emails)
+        → Google Calendar API (fetch existing bot-created events)
+        → Gemini API (extract new events, skip duplicates)
         → Slack (send approval messages)
 
 Slack (button click)
