@@ -19,9 +19,11 @@ class Calendar:
 
     def create_event(self, e: Event) -> str:
         try:
+            # Get email addresses from env variable
+            emails = self.secrets["EMAILS"].split(",")
+
             # Event resource
             # https://developers.google.com/workspace/calendar/api/v3/reference/events#resource
-
             event = {
                 "summary": f"[bot] {e.title}",
                 "location": e.location,
@@ -35,8 +37,8 @@ class Calendar:
                     "timeZone": "Australia/Melbourne",
                 },
                 "attendees": [
-                    {"email": self.secrets["EMAILS"].split(",")[0]},
-                    # {'email': self.secrets["EMAILS"].split(",")[1]}, #TODO: uncomment second email
+                    {"email": emails[0]},
+                    {"email": emails[1]},
                 ],
                 "reminders": {
                     "useDefault": True,

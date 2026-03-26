@@ -44,7 +44,9 @@ class Gemini(LlmBase):
                 )
             else:
                 logger.info(f"No events found in {len(emails)} emails.")
-                logger.info(f"Gemini response: {response.text}")
+
+            logger.info(f"Gemini notes: {events_obj.notes}")
             return events
+
         except errors.APIError as e:
             logger.error(f"An error occured while trying to extract events: {e}")
