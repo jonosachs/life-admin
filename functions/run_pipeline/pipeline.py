@@ -9,7 +9,7 @@ load_dotenv(override=True)
 
 # Set level INFO, DEBUG etc.
 logger = logging.getLogger(__name__)                                                                                     
-logger.setLevel(logging.DEBUG) 
+logging.basicConfig(level=logging.DEBUG)
 
 def lambda_handler(_event, _context):
     try:
@@ -20,7 +20,7 @@ def lambda_handler(_event, _context):
         # Accesptable formats for email filter:
         # newer_than:2d
         # after:2004/04/16
-        email_filter = "newer_than:2d"
+        email_filter = "newer_than:5d"
 
         # Get emails using Gmail api
         # Omitting the filter argument will get emails from all time
