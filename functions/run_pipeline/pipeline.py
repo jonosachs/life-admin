@@ -19,11 +19,14 @@ def lambda_handler(_event, _context):
         llm = Gemini()
         cal = Calendar()
 
-        email_filter = os.getenv("EMAIL_FILTER")
+        # Accesptable formats for email filter:
+        # newer_than:2d
+        # after:2004/04/16
+        email_filter = "newer_than:2d"
 
         # Get emails using Gmail api
         # Omitting the filter argument will get emails from all time
-        emails = gmail.get_mail(filter=email_filter, max_results=5)
+        emails = gmail.get_mail(filter=email_filter, max_results=20)
 
         if not emails:
             logger.info("No emails found, ending pipeline")

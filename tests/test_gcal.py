@@ -1,7 +1,6 @@
 import pytest
 from services.gcal import Calendar
 from models.event import Event
-import datetime
 import logging
 
 logger = logging.getLogger(__name__)
