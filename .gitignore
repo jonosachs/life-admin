@@ -10,5 +10,5 @@ sandbox.py
 scratch.py
 dynamo.py
 event.txt
-raw_event.py
-event.json
+mock_event.py
+mock_event.json

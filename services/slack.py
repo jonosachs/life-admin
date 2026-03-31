@@ -15,11 +15,12 @@ def post(url: str, payload: dict) -> Response:
     """
     try:
         response = requests.post(url=url, json=payload, timeout=5)
-        response.raise_for_status()
         logger.info("Successfully sent msg to Slack")
         return response
     except HTTPError as e:
-        raise HTTPError(f"Error sending msg to Slack: {e}") from e
+        raise HTTPError(
+            f"Error sending msg to Slack: {e}. Response: {response.text}"
+        ) from e
 
 
 def send_slack_webhook(payload: dict) -> Response:

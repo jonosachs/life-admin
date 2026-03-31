@@ -28,7 +28,7 @@ def lambda_handler(_event, _context):
         emails = gmail.get_mail(filter=email_filter, max_results=20)
 
         if not emails:
-            abort_msg = "No emails found, aborting pipeline"
+            abort_msg = "RunPipelineFunction: No emails found, aborting pipeline"
             logger.info(abort_msg)
             send_slack_webhook({"text": abort_msg})
             return
@@ -40,7 +40,7 @@ def lambda_handler(_event, _context):
         extracted_events = llm.extract_events(exist_events=exist_events, emails=emails)
 
         if not extracted_events:
-            abort_msg = "No new events, aborting pipeline"
+            abort_msg = "RunPipelineFunction: No new events, aborting pipeline"
             logger.info(abort_msg)
             send_slack_webhook({"text": abort_msg})
             return

@@ -17,57 +17,57 @@ def lambda_handler(event, context):
     Lamba handler for SlackHandlerFunction
     """
 
-    logger.info(f"raw event: {event}")
-
-    # Send immediate processing msg to acknowledge user button click
-    # This requires unpacking event to get the respones url.
-    raw_body = event["body"]
-    logger.info(f"raw event body: {raw_body}")
-
-    decoded = parse_qs(raw_body)
-    logger.info(f"decoded event body: {decoded}")
-
-    payload_str = decoded["payload"][0]  # unwraps the list
-    payload_json = json.loads(payload_str)
-
-    # Slack payload fields:
-    # https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
-    response_url = payload_json["response_url"]
-    send_update_msg(response_url, "Processing request..")
-
     try:
+        # Send immediate processing msg to acknowledge user button click
+        # This requires unpacking event to get the respones url.
+        payload = unpack_payload(event)
+        response_url = payload["response_url"]
+        send_update_msg(response_url, "Processing request..")
+
         if request_validated(event):
-            actions = payload_json["actions"][0]
-            action_id = actions["action_id"]
-            value = actions["value"]
-            event_obj = Event.model_validate_json(
-                value
-            )  # Returns validated Pydantic model.
-
-            logger.info(f"Recieved user response: {action_id}")
-
-            if action_id == "approve":
-                gcal = Calendar()
-                gcal.create_event(event_obj)
-                confirm_user_action(
-                    slack_response_url=response_url, event=event_obj, approved=True
-                )
-                return {
-                    "statusCode": 200,
-                    "body": "Calender event created successfully",
-                }
-            else:
-                confirm_user_action(
-                    slack_response_url=response_url, event=event_obj, approved=False
-                )
-                return {"statusCode": 200, "body": "Calender event denied"}
+            return handle_user_response(payload=payload)
         else:
-            send_update_msg(response_url, "Authentication failed.")
+            send_update_msg(
+                response_url, "SlackHandlerFunction: Authentication failed."
+            )
             return {"statusCode": 401, "body": "Authentication failed"}
     except Exception as e:
-        logger.error(f"Error occured while handling Slack response: {str(e)}")
-        send_update_msg(response_url, "Failed: {e}.")
+        logger.error(f"Error handling Slack event: {str(e)}")
+        send_update_msg(response_url, f"SlackHandlerFunction: {e}.")
         raise
+
+
+def handle_user_response(payload):
+    response_url = payload["response_url"]
+    actions = payload["actions"][0]
+    action_id = actions["action_id"]
+    value = actions["value"]
+    event_obj = Event.model_validate_json(value)  # Returns validated Pydantic model.
+
+    logger.info(f"Recieved user response: {action_id}")
+
+    if action_id == "approve":
+        gcal = Calendar()
+        gcal.create_event(event_obj)
+        confirm_user_action(
+            slack_response_url=response_url, event=event_obj, approved=True
+        )
+        return {
+            "statusCode": 200,
+            "body": "Calender event created successfully",
+        }
+    else:
+        confirm_user_action(
+            slack_response_url=response_url, event=event_obj, approved=False
+        )
+        return {"statusCode": 200, "body": "Calender event denied"}
+
+
+def unpack_payload(event: Event) -> dict:
+    raw_body = event["body"]
+    decoded = parse_qs(raw_body)
+    payload_str = decoded["payload"][0]  # unwraps the list
+    return json.loads(payload_str)
 
 
 def request_validated(event) -> bool:

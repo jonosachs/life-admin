@@ -1,6 +1,8 @@
-# Life Admin
+# Mail PAL
 
-Scans emails daily for action items, extracts calendar events using Gemini AI, and sends one-click approve/deny notifications via Slack. On approval, creates the event in Google Calendar.
+Automated AI mail filter tool that extracts important events and action items from your inbox and creates calendar events for each, with one-click approval via Slack. Built to save time and reduce message fatigue. Perfect for parents facing an overload of child-related emails!
+
+Handing over to Claude Code now for documentation..
 
 ## How it works
 
@@ -96,5 +98,3 @@ pytest
 sam build
 sam deploy
 ```
-
-\*README generated using Claude Code

@@ -114,7 +114,6 @@ class Calendar:
                 return
 
             logger.info(f"Retrieved {len(events)} events matching query: {query}.")
-            logger.info(f"Example event: {events[0]}")
             return events
 
         except HttpError as error:
