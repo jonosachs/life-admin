@@ -79,7 +79,7 @@ def build_slack_msg(event: Event) -> list:
                 },
                 {
                     "type": "button",
-                    "text": {"type": "plain_text", "text": "Deny"},
+                    "text": {"type": "plain_text", "text": "Decline"},
                     "style": "danger",
                     "action_id": "deny",
                     "value": event.model_dump_json(),

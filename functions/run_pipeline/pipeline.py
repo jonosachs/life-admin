@@ -2,6 +2,7 @@ from services.gmail import Gmail
 from services.gemini import Gemini
 from services.gcal import Calendar
 from services.slack_client import send_msg, build_slack_msg
+from services.db import Declined
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 gmail = Gmail()
 llm = Gemini()
 cal = Calendar()
+db = Declined()
 
 
 def lambda_handler(_event, _context):
@@ -30,11 +32,14 @@ def lambda_handler(_event, _context):
             send_msg(text=abort_msg)
             return
 
-        # Get existing events to avoid re-creating
+        # Get existing and recently declined events to avoid re-creating
         exist_events = cal.get_exist_events(query="[bot]", max_results=10)
+        decl_events = db.get_all()
 
         # Extract events from emails using Gemini api
-        llm_response = llm.extract_events(exist_events=exist_events, emails=emails)
+        llm_response = llm.extract_events(
+            exist_events=exist_events, declined_events=decl_events, emails=emails
+        )
 
         if not llm_response.events:
             abort_msg = f"RunPipelineFunction: No new events, aborting pipeline. LLM notes: {llm_response.notes}"
