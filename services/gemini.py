@@ -13,14 +13,11 @@ logger = logging.getLogger(__name__)
 class Gemini(LlmBase):
     def __init__(self):
         self.secrets = load_secrets()
-        self.client = genai.Client(api_key=self.secrets["GEMINI_API_KEY"])
 
-    def extract_events(self, exist_events, emails) -> List[Event]:
+    def extract_events(self, exist_events, declined_events, emails) -> Events:
         logger.info("Contacting Gemini API..")
 
-        prompt_contents = (
-            f"{prompt}\nExisting Events:\n{exist_events}\nEmails:\n{emails}"
-        )
+        prompt_contents = f"{prompt}\nExisting Events:\n{exist_events}\nRecently Declined Events:\n{declined_events}\nEmails:\n{emails}"
 
         try:
             logger.info("Attempting to extract events..")
@@ -38,15 +35,14 @@ class Gemini(LlmBase):
             )  # Pydantic 'Events' object has field events: List[Event]
 
             if events:
-                logger.info(f"Sample event payload from Gemini: {events[0]}")
                 logger.info(
                     f"Extracted {len(events)} events from {len(emails)} emails."
                 )
             else:
                 logger.info(f"No events found in {len(emails)} emails.")
+                logger.info(f"Gemini notes: {events_obj.notes}")
 
-            logger.info(f"Gemini notes: {events_obj.notes}")
-            return events
+            return events_obj
 
         except errors.APIError as e:
             logger.error(f"An error occured while trying to extract events: {e}")

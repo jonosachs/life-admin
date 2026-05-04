@@ -19,7 +19,7 @@ class Calendar:
     def create_event(self, e: Event) -> str:
         try:
             # Get email addresses from env variable
-            emails = self.secrets["EMAILS"].split(",")
+            EMAILS = self.secrets["EMAILS"].split(",")
 
             # Event resource
             # https://developers.google.com/workspace/calendar/api/v3/reference/events#resource
@@ -36,8 +36,8 @@ class Calendar:
                     "timeZone": "Australia/Melbourne",
                 },
                 "attendees": [
-                    {"email": emails[0]},
-                    {"email": emails[1]},
+                    {"email": EMAILS[0]},
+                    {"email": EMAILS[1]},
                 ],
                 "reminders": {
                     "useDefault": True,
@@ -70,7 +70,9 @@ class Calendar:
             logger.error(f"An error occurred while trying to create an event: {error}")
             raise
 
-    def get_event(self, event_id):
+    # Response:
+    # https://developers.google.com/workspace/calendar/api/v3/reference/events#resource-representations
+    def get_event(self, event_id) -> dict | None:
         try:
             # Call the Calendar API
             logger.info("Getting event..")
@@ -84,15 +86,17 @@ class Calendar:
                 logger.info(f"Event {event_id} not found.")
                 return
 
-            logger.info(f"Retrieved event: {event["id"]}")
+            logger.info(f"Retrieved event: {event_id}")
             return event
 
         except HttpError as error:
             logger.error(f"An error occurred: {error}")
 
     # Parameters:
-    # https://developers.google.com/workspace/calendar/api/v3/reference/events/list
-    def get_exist_events(self, query: str, max_results: int = 10):
+    # https://developers.google.com/workspace/calendar/api/v3/reference/events/list#parameters
+    # Response:
+    # https://developers.google.com/workspace/calendar/api/v3/reference/events/list#response
+    def get_exist_events(self, query: str, max_results: int = 10) -> list[dict] | None:
         try:
             # Call the Calendar API
             logger.info("Getting events..")
@@ -119,7 +123,7 @@ class Calendar:
         except HttpError as error:
             logger.error(f"An error occurred: {error}")
 
-    def delete_event(self, event_id):
+    def delete_event(self, event_id) -> None:
         try:
             response = (
                 self.service.events()

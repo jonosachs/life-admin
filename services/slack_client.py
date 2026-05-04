@@ -12,10 +12,15 @@ _slack_token = secrets["SLACK_BOT_USER_TOKEN"]
 _client = WebClient(token=_slack_token)
 
 
+# https://docs.slack.dev/reference/block-kit/blocks/section-block/
 def get_blocks(text: str) -> list:
     return [{"type": "section", "text": {"type": "mrkdwn", "text": text}}]
 
 
+# Arguments:
+# https://docs.slack.dev/reference/methods/chat.postMessage/#arguments
+# Response:
+# https://docs.slack.dev/reference/methods/chat.postMessage/#response
 def send_msg(msg_blocks: list | None = None, text: str | None = None):
     """Send new message not associated with previous"""
 

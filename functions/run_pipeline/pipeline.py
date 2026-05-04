@@ -6,6 +6,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+gmail = Gmail()
+llm = Gemini()
+cal = Calendar()
+
 
 def lambda_handler(_event, _context):
     """
@@ -13,10 +17,6 @@ def lambda_handler(_event, _context):
     """
 
     try:
-        gmail = Gmail()
-        llm = Gemini()
-        cal = Calendar()
-
         # Accesptable formats for email filter: newer_than:2d, after:2004/04/16
         email_filter = "newer_than:2d"
 
@@ -34,10 +34,10 @@ def lambda_handler(_event, _context):
         exist_events = cal.get_exist_events(query="[bot]", max_results=10)
 
         # Extract events from emails using Gemini api
-        extracted_events = llm.extract_events(exist_events=exist_events, emails=emails)
+        llm_response = llm.extract_events(exist_events=exist_events, emails=emails)
 
-        if not extracted_events:
-            abort_msg = "RunPipelineFunction: No new events, aborting pipeline"
+        if not llm_response.events:
+            abort_msg = f"RunPipelineFunction: No new events, aborting pipeline. LLM notes: {llm_response.notes}"
             logger.info(abort_msg)
             send_msg(text=abort_msg)
             return
@@ -46,7 +46,7 @@ def lambda_handler(_event, _context):
         logger.info("Sending Slack messages")
         sent = 0
 
-        for e in extracted_events:
+        for e in llm_response.events:
             slack_msg = build_slack_msg(e)
             response = send_msg(slack_msg)
             if response["ok"]:
