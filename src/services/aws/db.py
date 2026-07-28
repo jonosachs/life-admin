@@ -27,7 +27,7 @@ class EventsStore:
         e = json.loads(event.model_dump_json(), parse_float=Decimal)
 
         # expiry used with Dynamo's Time to Live (TTL) which auto deletes expired entries
-        expiry = int((datetime.now() + timedelta(days=5)).timestamp())
+        expiry = int((datetime.now() + timedelta(days=14)).timestamp())
 
         logger.info("📡 Writing entry to db")
 
